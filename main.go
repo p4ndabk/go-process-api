@@ -1,10 +1,20 @@
 package main
 
 import (
+	"log"
+	"os"
+	"github.com/joho/godotenv"
 	"github.com/p4ndabk/go-process-api/routes"
 )
 
 func main() {
-	port := ":8080"
-	routes.HanddleRequests(port)
+	loadEnv()
+	routes.HanddleRequests(os.Getenv("SERVER_PORT"))
+}
+
+func loadEnv() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 }
