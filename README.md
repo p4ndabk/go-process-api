@@ -1,3 +1,3 @@
-# Testando api em go
+# test api in go
 
 create initial api on go test
