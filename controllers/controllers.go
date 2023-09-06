@@ -3,9 +3,11 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"strconv"
 	"sync"
-	"time"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Home(w http.ResponseWriter, r *http.Request) {
@@ -22,6 +24,8 @@ func Health(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
+	log.Println("is alive!")
+
 	err := json.NewEncoder(w).Encode("is alive!")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -30,7 +34,7 @@ func Health(w http.ResponseWriter, r *http.Request) {
 
 type RequestProcessBody struct {
 	Process int `json:"process"`
-	Worker int `json:"worker"`
+	Worker  int `json:"worker"`
 }
 
 func Process(w http.ResponseWriter, r *http.Request) {
@@ -40,11 +44,11 @@ func Process(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 	}
 
-	data := make(map[string]bool)
+	data := make(map[string]string)
 
 	for i := 0; i < request.Process; i++ {
 		key := fmt.Sprintf("process_%d", i)
-		data[key] = ProcessId(i)
+		data[key] = ProcessHashById(i)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -57,15 +61,16 @@ func Process(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Done")
 }
 
-func ProcessId(id int) bool {
-	fmt.Println("ProcessId", id)
-	time.Sleep(2 * time.Second)
+func ProcessHashById(id int) string {
+	key := fmt.Sprintf("Mudar@123-%s", strconv.Itoa(id))
 
-	rest := id % 2;
-	if (rest == 0)	{
-		return true
-	} 
-	return false
+	hash, err := bcrypt.GenerateFromPassword([]byte(key), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println("Erro ao gerar o hash bcrypt:", err)
+		panic(err)
+	}
+
+	return string(hash)
 }
 
 func GoProcess(w http.ResponseWriter, r *http.Request) {
@@ -77,8 +82,8 @@ func GoProcess(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var wg sync.WaitGroup
-	data := make(map[string]bool)
-	processChan := make(chan bool)
+	data := make(map[string]string)
+	processChan := make(chan string)
 
 	for i := 0; i < request.Process; i++ {
 		wg.Add(1)
@@ -104,15 +109,7 @@ func GoProcess(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Done")
 }
 
-func GoProcessId(id int, ch chan<- bool, wg *sync.WaitGroup) {
+func GoProcessId(id int, ch chan<- string, wg *sync.WaitGroup) {
 	defer wg.Done()
-	fmt.Println("ProcessId", id)
-	time.Sleep(2 * time.Second)
-	
-	rest := id % 2;
-	if (rest == 0)	{
-		ch <- true
-	} else {
-		ch <- false
-	}
+	ch <- ProcessHashById(id)
 }

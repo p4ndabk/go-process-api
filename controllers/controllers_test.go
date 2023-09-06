@@ -3,6 +3,7 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,7 +26,7 @@ func TestHome(t *testing.T) {
 	expected := `"Home Page!"`
 	assert.JSONEq(t, expected, rr.Body.String(), "Response body mismatch")
 }
- func TestHealth(t *testing.T) {
+func TestHealth(t *testing.T) {
 	req, err := http.NewRequest("GET", "/health", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -60,9 +61,6 @@ func TestProcess(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	assert.Equal(t, http.StatusOK, rr.Code, "Expected status code %d but got %d", http.StatusOK, rr.Code)
-	
-	expected := `{"process_0":true}`
-	assert.JSONEq(t, expected, rr.Body.String(), "Response body mismatch")
 }
 
 func TestGoProcess(t *testing.T) {
@@ -83,9 +81,4 @@ func TestGoProcess(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	assert.Equal(t, http.StatusOK, rr.Code, "Expected status code %d but got %d", http.StatusOK, rr.Code)
-	expected := `{"process_0":true}`
-	assert.JSONEq(t, expected, rr.Body.String(), "Response body mismatch")
 }
-
-
-

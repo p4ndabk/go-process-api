@@ -2,21 +2,20 @@ package routes
 
 import (
 	"fmt"
-	"log"
-	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/p4ndabk/go-process-api/controllers"
+	"log"
+	"net/http"
 )
 
-
 func HanddleRequests(port string) {
-	rotas := mux.NewRouter().StrictSlash(true)
+	routes := mux.NewRouter().StrictSlash(true)
 
-	rotas.HandleFunc("/", controllers.Home).Methods("GET")
-	rotas.HandleFunc("/health", controllers.Health).Methods("GET")
-	rotas.HandleFunc("/process", controllers.Process).Methods("POST")
-	rotas.HandleFunc("/go-process", controllers.GoProcess).Methods("POST")
-	
+	routes.HandleFunc("/", controllers.Home).Methods("GET")
+	routes.HandleFunc("/health", controllers.Health).Methods("GET")
+	routes.HandleFunc("/process", controllers.Process).Methods("POST")
+	routes.HandleFunc("/go-process", controllers.GoProcess).Methods("POST")
+
 	fmt.Println("Server running in port:", port)
-	log.Fatal(http.ListenAndServe(port, rotas))
+	log.Fatal(http.ListenAndServe(port, routes))
 }
