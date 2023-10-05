@@ -16,6 +16,11 @@ func HanddleRequests(port string) {
 	routes.HandleFunc("/process", controllers.Process).Methods("POST")
 	routes.HandleFunc("/go-process", controllers.GoProcess).Methods("POST")
 
+	//solar
+	routes.HandleFunc("/solar", controllers.Solar).Methods("GET")
+	routes.HandleFunc("/city", controllers.CityList).Methods("GET")
+
+
 	fmt.Println("Server running in port:", port)
 	log.Fatal(http.ListenAndServe(port, routes))
 }
