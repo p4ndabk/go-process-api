@@ -24,7 +24,10 @@ type Cities struct {
 func CityList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")	
 	
-	jsonData := loadCities()
+	jsonData, err := os.Open("storage/cities.json")
+	if err != nil {
+		log.Println("error open file cities.json")
+	}
 
 	var cityData Cities	
 	decoder := json.NewDecoder(jsonData)
@@ -33,18 +36,10 @@ func CityList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(cityData)
+	err = json.NewEncoder(w).Encode(cityData)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-}
 
-func loadCities() *os.File {
-	jsonData, err := os.Open("storage/cities.json")
-	if err != nil {
-		log.Println("error open file cities.json")
-	}
 	defer jsonData.Close()
-
-	return jsonData
 }
